@@ -1,0 +1,5 @@
+version: 2.2.2
+location: /user/sajja/nodejs-app
+name: sajja
+destination: /home/{{name}}
+docker_password: 

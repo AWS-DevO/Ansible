@@ -1,0 +1,70 @@
+---
+- name: Install Python3, Docker and docker-compose
+  hosts: aws_ec2
+  become: yes
+  gather_facts: False
+  tasks:
+    - name: Make sure Python3 and Docker are Installed
+      vars:
+        ansible_python_interpreter: /usr/bin/python
+      yum:
+      name: 
+        - python3 
+        - docker
+      update_cache: yes 
+      state: present
+    - name: Install Docker-compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-Linux-{{lookup('pipe', 'uname -m')}}
+        dest: /usr/local/bin/docker-compose
+        mode: +x
+      - name: Ensure docker is running
+        systemd:
+          name: docker
+          state: started
+      - name: Install Docker Python Module
+        pip: 
+          name: 
+            - docker
+            - docker-compose
+
+- name: Add ec2-user to docker group
+  hosts: aws_ec2
+  become: yes
+  tasks:
+    - name: Add ec2-user to docker group
+      user: 
+        name: ec2-user
+        groups: docker
+        append: yes
+    - name: Recconect to server session
+      meta: reset_connection
+
+- name: Start Docker Container 
+  hosts: aws_ec2
+  become: yes
+  vars_files:
+    - project-vars
+  tasks:
+    - name: Copy docker compose 
+      copy:
+        src: 
+        dest: /home/ec2-user/docker-compose.yaml
+    - name: Docker login
+      docker_login: 
+        registry_url: https://index.docker.io/v1/
+        username: sajjavenkat
+        password: "{{docker_password}}"
+    - name: Start Container from compose
+      docker_compose: 
+        project_src: /home/ec2-user
+        state: present # docker compose up 
+
+
+
+
+
+
+
+
+
