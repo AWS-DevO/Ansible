@@ -53,7 +53,7 @@
     - name: Docker login
       docker_login: 
         registry_url: https://index.docker.io/v1/
-        username: sajjavenkat
+        username: venkatsajja
         password: "{{docker_password}}"
     - name: Start Container from compose
       docker_compose: 
